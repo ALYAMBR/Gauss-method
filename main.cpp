@@ -6,6 +6,7 @@ public:
     gauss_matrix()
     {
         std::cin >> num_str >> num_col;
+        answer = new double [num_col];
         num_col++;
         matrix_array = new double* [num_str];
         matrix_array[0] = new double [num_str * num_col];
@@ -65,6 +66,48 @@ public:
                 sub_str(i, j);
         }
     }
+    int back_run()
+    {
+        for(int i = num_str - 1; i != 0; --i)
+        {
+            if(!count_not_zeros(i))
+            {
+                if(matrix_array[i][num_col - 1] > eps || matrix_array[i][num_col - 1] < -eps)
+                {
+                    std::cout << "NO";
+                    break;
+                }
+                else if(num_col - 1 < i + 1)
+                {
+                    std::cout << "INF";
+                    break;
+                }
+            }
+            return i;//первая (снизу) ненулевая строка
+        }
+        return -1;
+    }
+    void gauss_method()
+    {
+        straight_run();
+        int new_position = back_run();
+        if(new_position == -1)return;
+        else
+        {
+            for(int i = new_position; i != 0; --i)
+            {
+                answer[i] =
+            }
+        }
+    }
+    int count_not_zeros(int num_of_str)//считает количество ненулевых элементов строки
+    {
+        int answer = 0;
+        for(int i = 0; i < num_col - 1; ++i)
+            if(matrix_array[num_of_str][i] > eps || matrix_array[num_of_str][i] < -eps)//числа с плавающей точкой плохо сравниваются с нулём
+                ++answer;
+        return answer;
+    }
     int get_num_str()
     {
         return num_str;
@@ -77,8 +120,9 @@ public:
     {
         delete [] to_delete;
         delete [] matrix_array;
+        delete [] answer;
     }
-
+private:
     int num_str_max_elem(int const num_column)//ищет максимальный элемент в столбце, возвращает номер строки с ним
     {
         int answer = num_column;
@@ -90,7 +134,6 @@ public:
         if(!max) return -1;
         return answer;
     }
-private:
     void input_matrix()
     {
         for(int i = 0; i < num_str * num_col; ++i)
@@ -100,13 +143,15 @@ private:
     }
     double** matrix_array;
     double* to_delete;
+    double* answer;
+    double eps = 0.0000001;
     int num_str;
     int num_col;
 };
 
 int main() {
     gauss_matrix matrix;
-    matrix.straight_run();
+    //matrix.straight_run();
     //matrix.output_matrix();
     return 0;
 }
