@@ -40,19 +40,30 @@ public:
         for(int i = 0; i < num_col; ++i)
             matrix_array[line_num][i] *= scalar;
     }
-    void sum_str(int const num_source_str, int const num_dest_str, int start_position)//номера строк считаются от нуля, start_position показывает, с какого столбца начинать сложение
+    void sum_str(int const num_source_str, int const num_dest_str)//номера строк считаются от нуля
     {
-        for(int i = start_position; i < num_col; ++i)
+        for(int i = 0; i < num_col; ++i)
             matrix_array[num_dest_str][i] += matrix_array[num_source_str][i];
     }
-    void sub_str(int const num_source_str, int const num_dest_str, int start_position)//номера строк считаются от нуля, из dest вычитается source
+    void sub_str(int const num_source_str, int const num_dest_str)//номера строк считаются от нуля, из dest вычитается source
     {
-        for(int i = start_position; i < num_col; ++i)
+        for(int i = 0; i < num_col; ++i)
             matrix_array[num_dest_str][i] -= matrix_array[num_source_str][i];
     }
     void straight_run()
     {
-        
+        int N = std::min(num_str, num_col - 1);
+        for(int i = 0; i < N; ++i)
+        {
+            int num_main_str = num_str_max_elem(i);
+            if(num_main_str == -1)
+                continue;
+            swap_lines(i, num_main_str);
+            for(int j = i; j < num_str; ++j)
+                mul_scalar_str(1 / matrix_array[j][i], j);
+            for(int j = i + 1; j < num_str; ++j)
+                sub_str(i, j);
+        }
     }
     int get_num_str()
     {
@@ -66,6 +77,18 @@ public:
     {
         delete [] to_delete;
         delete [] matrix_array;
+    }
+
+    int num_str_max_elem(int const num_column)//ищет максимальный элемент в столбце, возвращает номер строки с ним
+    {
+        int answer = num_column;
+        double max = matrix_array[num_column][num_column];
+        for(int i = num_column; i < num_str; ++i)//строки с номерами от 0 до num_column уже обработаны
+        {
+            if(matrix_array[i][num_column] > max)answer = i;
+        }
+        if(!max) return -1;
+        return answer;
     }
 private:
     void input_matrix()
@@ -83,6 +106,7 @@ private:
 
 int main() {
     gauss_matrix matrix;
-
+    matrix.straight_run();
+    //matrix.output_matrix();
     return 0;
 }
