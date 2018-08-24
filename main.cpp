@@ -96,9 +96,19 @@ public:
         {
             for(int i = new_position; i != 0; --i)
             {
-                answer[i] =
+                int semi_answer = 1;
+                for(int j = new_position; j > i; --j)
+                    semi_answer += answer[j] * matrix_array[i][j];
+                answer[i] = (matrix_array[i][num_col - 1] - semi_answer) / matrix_array[i][i];
             }
         }
+    output_answer();
+    }
+    void output_answer()
+    {
+        std::cout << "YES\n";
+        for(int i = 0; i < num_col - 1; ++i)
+            std::cout << answer[i] << " ";
     }
     int count_not_zeros(int num_of_str)//считает количество ненулевых элементов строки
     {
@@ -151,7 +161,6 @@ private:
 
 int main() {
     gauss_matrix matrix;
-    //matrix.straight_run();
-    //matrix.output_matrix();
+    matrix.gauss_method();
     return 0;
 }
