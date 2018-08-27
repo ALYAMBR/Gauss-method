@@ -7,6 +7,8 @@ public:
     {
         std::cin >> num_str >> num_col;
         answer = new double [num_col];
+        for(int i = 0; i < num_col; ++i)
+            answer[i] = 0.0;
         num_col++;
         matrix_array = new double* [num_str];
         matrix_array[0] = new double [num_str * num_col];
@@ -22,11 +24,13 @@ public:
         for(int i = 0; i < num_str * num_col; ++i)
         {
             if(!(i % num_col)) std::cout << std::endl;
+            std::cout.setf(std::ios::fixed);
             std::cout << matrix_array[i / num_col][i % num_col] << " ";
         }
     }
     void swap_lines(int const line_one, int const line_two)//номера строк считаются от нуля
     {
+        if(line_one == line_two) return;
         double* temp = matrix_array[line_one];
         matrix_array[line_one] = matrix_array[line_two];
         matrix_array[line_two] = temp;
@@ -61,48 +65,54 @@ public:
                 continue;
             swap_lines(i, num_main_str);
             for(int j = i; j < num_str; ++j)
-                mul_scalar_str(1 / matrix_array[j][i], j);
+                if(matrix_array[j][i] > eps || matrix_array[j][i] < -eps)
+                    mul_scalar_str(1 / matrix_array[j][i], j);
             for(int j = i + 1; j < num_str; ++j)
                 sub_str(i, j);
+            output_matrix();
+            std::cout << std::endl;
         }
     }
     int back_run()
     {
+        int new_position = -1;
         for(int i = num_str - 1; i != 0; --i)
         {
             if(!count_not_zeros(i))
             {
-                if(matrix_array[i][num_col - 1] > eps || matrix_array[i][num_col - 1] < -eps)
+                if(matrix_array[i][num_col - 1] > eps || matrix_array[i][num_col - 1] < -eps)//правая часть ненулевая, а левая нулевая
                 {
                     std::cout << "NO";
-                    break;
+                    return 0;
                 }
-                else if(num_col - 1 < i + 1)
+                else if(num_col - 1 < i + 1)//уравнений больше, чем переменных
                 {
                     std::cout << "INF";
-                    break;
+                    return 0;
                 }
+                else continue;
             }
-            return i;//первая (снизу) ненулевая строка
+            new_position = i;//первая (снизу) ненулевая строка
+            break;
         }
-        return -1;
-    }
-    void gauss_method()
-    {
-        straight_run();
-        int new_position = back_run();
-        if(new_position == -1)return;
+        if(new_position == -1)return 0;
         else
         {
-            for(int i = new_position; i != 0; --i)
+            for(int i = new_position; i != -1; --i)
             {
-                int semi_answer = 1;
-                for(int j = new_position; j > i; --j)
+                double semi_answer = 0;
+                for(int j = num_col - 2; j > i; --j)
                     semi_answer += answer[j] * matrix_array[i][j];
                 answer[i] = (matrix_array[i][num_col - 1] - semi_answer) / matrix_array[i][i];
             }
         }
-    output_answer();
+        return 1;
+    }
+    void gauss_method()
+    {
+        straight_run();
+        if(back_run())
+            output_answer();
     }
     void output_answer()
     {
@@ -139,7 +149,11 @@ private:
         double max = matrix_array[num_column][num_column];
         for(int i = num_column; i < num_str; ++i)//строки с номерами от 0 до num_column уже обработаны
         {
-            if(matrix_array[i][num_column] > max)answer = i;
+            if(matrix_array[i][num_column] > max)
+            {
+                max = matrix_array[i][num_column];
+                answer = i;
+            }
         }
         if(!max) return -1;
         return answer;
@@ -147,9 +161,7 @@ private:
     void input_matrix()
     {
         for(int i = 0; i < num_str * num_col; ++i)
-        {
             std::cin >> matrix_array[i / num_col][i % num_col];
-        }
     }
     double** matrix_array;
     double* to_delete;
