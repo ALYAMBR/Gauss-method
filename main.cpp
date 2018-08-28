@@ -24,7 +24,6 @@ public:
         for(int i = 0; i < num_str * num_col; ++i)
         {
             if(!(i % num_col)) std::cout << std::endl;
-            std::cout.setf(std::ios::fixed);
             std::cout << matrix_array[i / num_col][i % num_col] << " ";
         }
     }
@@ -75,7 +74,7 @@ public:
     int back_run()
     {
         int new_position = -1;
-        for(int i = num_str - 1; i != 0; --i)
+        for(int i = num_str - 1; i >= 0; --i)
         {
             if(!count_not_zeros(i))
             {
@@ -118,11 +117,21 @@ public:
         if(back_run())
             output_answer();
     }
+    void prepare_answer()
+    {
+        for(int i = 0; i < num_col - 1; ++i)
+        {
+            if(answer[i] < eps && answer[i] > - eps)
+                answer[i] = 0.0;
+        }
+    }
     void output_answer()
     {
+        prepare_answer();
         std::cout << "YES\n";
-        for(int i = 0; i < num_col - 1; ++i)
+        for(int i = 0; i < num_col - 2; ++i)
             std::cout << answer[i] << " ";
+        std::cout << answer[num_col - 2];
     }
     int count_not_zeros(int num_of_str)//считает количество ненулевых элементов строки
     {
