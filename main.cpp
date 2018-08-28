@@ -19,13 +19,26 @@ public:
         }
         input_matrix();
     }
-    void output_matrix()
+    void gauss_method()
     {
-        for(int i = 0; i < num_str * num_col; ++i)
-        {
-            if(!(i % num_col)) std::cout << std::endl;
-            std::cout << matrix_array[i / num_col][i % num_col] << " ";
-        }
+        straight_run();
+        if(back_run())
+            output_answer();
+    }
+    ~gauss_matrix()
+    {
+        delete [] to_delete;
+        delete [] matrix_array;
+        delete [] answer;
+    }
+private:
+    void output_answer()
+    {
+        prepare_answer();
+        std::cout << "YES\n";
+        for(int i = 0; i < num_col - 2; ++i)
+            std::cout << answer[i] << " ";
+        std::cout << answer[num_col - 2];
     }
     void swap_lines(int const line_one, int const line_two)//номера строк считаются от нуля
     {
@@ -44,11 +57,6 @@ public:
         for(int i = 0; i < num_col; ++i)
             matrix_array[line_num][i] *= scalar;
     }
-    void sum_str(int const num_source_str, int const num_dest_str)//номера строк считаются от нуля
-    {
-        for(int i = 0; i < num_col; ++i)
-            matrix_array[num_dest_str][i] += matrix_array[num_source_str][i];
-    }
     void sub_str(int const num_source_str, int const num_dest_str)//номера строк считаются от нуля, из dest вычитается source
     {
         for(int i = 0; i < num_col; ++i)
@@ -65,10 +73,11 @@ public:
             swap_lines(i, num_main_str);
             for(int j = i; j < num_str; ++j)
                 if(matrix_array[j][i] > eps || matrix_array[j][i] < -eps)
+                {
                     mul_scalar_str(1 / matrix_array[j][i], j);
-            for(int j = i + 1; j < num_str; ++j)
-                if(matrix_array[j][i] > eps || matrix_array[j][i] < -eps)
-                    sub_str(i, j);
+                    if(j != i)
+                        sub_str(i, j);
+                }
         }
     }
     int back_run()
@@ -111,28 +120,6 @@ public:
         }
         return 1;
     }
-    void gauss_method()
-    {
-        straight_run();
-        if(back_run())
-            output_answer();
-    }
-    void prepare_answer()
-    {
-        for(int i = 0; i < num_col - 1; ++i)
-        {
-            if(answer[i] < eps && answer[i] > - eps)
-                answer[i] = 0.0;
-        }
-    }
-    void output_answer()
-    {
-        prepare_answer();
-        std::cout << "YES\n";
-        for(int i = 0; i < num_col - 2; ++i)
-            std::cout << answer[i] << " ";
-        std::cout << answer[num_col - 2];
-    }
     int count_not_zeros(int num_of_str)//считает количество ненулевых элементов строки
     {
         int answer = 0;
@@ -141,21 +128,14 @@ public:
                 ++answer;
         return answer;
     }
-    int get_num_str()
+    void prepare_answer()//делает красивый нуль в ответе :-)
     {
-        return num_str;
+        for(int i = 0; i < num_col - 1; ++i)
+        {
+            if(answer[i] < eps && answer[i] > - eps)
+                answer[i] = 0.0;
+        }
     }
-    int get_num_col()
-    {
-        return num_col;
-    }
-    ~gauss_matrix()
-    {
-        delete [] to_delete;
-        delete [] matrix_array;
-        delete [] answer;
-    }
-private:
     int num_str_max_elem(int const num_column)//ищет максимальный элемент в столбце, возвращает номер строки с ним
     {
         int answer = num_column;
@@ -176,12 +156,12 @@ private:
         for(int i = 0; i < num_str * num_col; ++i)
             std::cin >> matrix_array[i / num_col][i % num_col];
     }
-    double** matrix_array;
-    double* to_delete;
-    double* answer;
-    double eps = 0.0000001;
-    int num_str;
-    int num_col;
+    double** matrix_array;//матрциа СЛАУ
+    double* to_delete;//указатель на память с матрицей СЛАУ, так как иначе он теряется при свапе строк
+    double* answer;//массив с корнями СЛАУ
+    double eps = 0.0000001;//точность вычислений, всё, что меньше по модулю, приравнивается к нулю
+    int num_str;//количество строк в матрице СЛАУ
+    int num_col;//количество столбцов в матрице СЛАУ
 };
 
 int main() {
