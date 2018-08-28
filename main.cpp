@@ -68,9 +68,8 @@ public:
                 if(matrix_array[j][i] > eps || matrix_array[j][i] < -eps)
                     mul_scalar_str(1 / matrix_array[j][i], j);
             for(int j = i + 1; j < num_str; ++j)
-                sub_str(i, j);
-            output_matrix();
-            std::cout << std::endl;
+                if(matrix_array[j][i] > eps || matrix_array[j][i] < -eps)
+                    sub_str(i, j);
         }
     }
     int back_run()
@@ -85,12 +84,17 @@ public:
                     std::cout << "NO";
                     return 0;
                 }
-                else if(num_col - 1 < i + 1)//уравнений больше, чем переменных
+                else if(num_col - 1 > i + 1)//переменных больше, чем уравнений
                 {
                     std::cout << "INF";
                     return 0;
                 }
                 else continue;
+            }
+            if(num_col - 1 > i + 1)//переменных больше, чем уравнений
+            {
+                std::cout << "INF";
+                return 0;
             }
             new_position = i;//первая (снизу) ненулевая строка
             break;
@@ -134,7 +138,7 @@ public:
     }
     int get_num_col()
     {
-        return num_str;
+        return num_col;
     }
     ~gauss_matrix()
     {
